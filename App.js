@@ -6,14 +6,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-import ProfileScreen from './screens/ProfileScreen';
+import MainPage from './screens/MainPage';
 import CourseListScreen from './screens/CourseListScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 function MyTab() {
   return (
-    <Tab.Navigator screenOptions={{
+    <Tab.Navigator initialRouteName="Home"
+    screenOptions={{
       tabBarLabelPosition: 'beside-icon', // 라벨 위치 변경
       tabBarShowLabel: false
     }}>
@@ -23,8 +24,8 @@ function MyTab() {
           <Ionicons name="person" size={size} color={color} />
         ),
       }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{
-        tabBarLabel: "My Profile", // 탭 라벨 변경
+      <Tab.Screen name="Home" component={MainPage} options={{
+        tabBarLabel: "Main", // 탭 라벨 변경
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="home" size={size} color={color} />
         ),
