@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-import MainPage from './screens/MainPage';
+import MainScreen from './screens/MainScreen';
 import CourseListScreen from './screens/CourseListScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,7 +24,7 @@ function MyTab() {
           <Ionicons name="person" size={size} color={color} />
         ),
       }} />
-      <Tab.Screen name="Home" component={MainPage} options={{
+      <Tab.Screen name="Home" component={MainScreen} options={{
         tabBarLabel: "Main", // 탭 라벨 변경
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="home" size={size} color={color} />
