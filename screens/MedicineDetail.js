@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
+    marginBlockStart: 30,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

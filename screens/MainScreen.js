@@ -1,19 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, Button, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 화면 높이를 가져옵니다.
 const screenHeight = Dimensions.get('window').height;
 
-const MainScreen = () => {
+const MainScreen = ({ navigation }) => {
+  const [nickname, setNickname] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  const checkLoginStatus = async () => {
+    try {
+      const storedNickname = await AsyncStorage.getItem('nickname');
+      const storedProfileImage = await AsyncStorage.getItem('profileImage');
+      setNickname(storedNickname);
+      setProfileImage(storedProfileImage);
+    } catch (error) {
+      console.error('Error checking login status:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerRight}>
+          {nickname ? (
+            <>
+              <Text style={styles.nickname}>{nickname}</Text>
+              <View style={styles.profileImageContainer}>
+                {profileImage ? (
+                  <Image 
+                    source={{ uri: profileImage }} 
+                    style={styles.profileImage}
+                  />
+                ) : (
+                  <View style={styles.emptyProfile} />
+                )}
+              </View>
+            </>
+          ) : (
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('LoginScreen')}
+              style={styles.loginButton}
+            >
+              <Text style={styles.loginText}>로그인하기</Text>
+              <View style={styles.emptyProfile} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       {/* Section for taking a photo */}
       <View style={styles.section}>
       <Text style={styles.sectionText}>사진을 찍어 알아봐요!</Text>
@@ -30,7 +75,9 @@ const MainScreen = () => {
       <Text style={styles.sectionText}>검색을 통해 알아봐요!</Text>
         <View style={styles.searchOptions}>
         <View style={styles.rowContainer}>
-        <TouchableOpacity style={styles.searchButton}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('SearchScreen')}
+          style={styles.searchButton}>
           <Ionicons name="search-outline" size={24} color="black" />
           <Text style={styles.buttonText}>약 검색</Text>
         </TouchableOpacity>
@@ -55,8 +102,47 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#ffffff',
-    
   },
+
+  header: {
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  nickname: {
+    marginRight: 8,
+    fontSize: 16,
+  },
+  profileImageContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+  },
+  emptyProfile: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#eee',
+  },
+  loginButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  loginText: {
+    marginRight: 8,
+    fontSize: 16,
+    color: '#007AFF',
+  },
+
   separator: {
     borderBottomWidth: 1,  // 구분선의 두께
     borderBottomColor: '#eee',  // 구분선의 색상
