@@ -5,6 +5,7 @@ import { View, Text, Button, TouchableOpacity, StyleSheet, Dimensions } from 're
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';  // 네비게이션 훅 임포트
 
 
 // 화면 높이를 가져옵니다.
@@ -12,12 +13,20 @@ const screenHeight = Dimensions.get('window').height;
 
 const MainScreen = () => {
 
+  const navigation = useNavigation();  // 네비게이션 훅 사용
+  
+
+  // 카메라 화면으로 이동하는 함수
+  const goToCamera = () => {
+    navigation.navigate('Camera');  // 'Camera' 화면으로 이동
+  };
+
   return (
     <View style={styles.container}>
       {/* Section for taking a photo */}
       <View style={styles.section}>
       <Text style={styles.sectionText}>사진을 찍어 알아봐요!</Text>
-        <TouchableOpacity style={styles.searchButton}>
+      <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('Camera')}>
           <Ionicons name="camera-outline" size={24} color="black" />
           <Text style={styles.buttonText}>알약 촬영하기</Text>
         </TouchableOpacity>
