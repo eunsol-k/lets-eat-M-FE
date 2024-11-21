@@ -8,7 +8,8 @@ import {
   TouchableOpacity, 
   SafeAreaView,
   ScrollView,
-  Image
+  Image,
+  FlatList
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -20,7 +21,6 @@ const SearchScreen = ({ navigation }) => {
   const [searchResults, setSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
 
-  // 최근 검색어 불러오기
   useEffect(() => {
     loadRecentSearches();
   }, []);
@@ -36,15 +36,11 @@ const SearchScreen = ({ navigation }) => {
     }
   };
 
-  // 최근 검색어 저장
   const saveRecentSearch = async (search) => {
     try {
       let searches = [...recentSearches];
-      // 중복 검색어 제거
       searches = searches.filter(item => item !== search);
-      // 새 검색어 추가
       searches.unshift(search);
-      // 최대 10개만 저장
       searches = searches.slice(0, 10);
       
       await AsyncStorage.setItem('recentSearches', JSON.stringify(searches));
@@ -59,10 +55,7 @@ const SearchScreen = ({ navigation }) => {
     
     setIsSearching(true);
     try {
-      // 검색어 저장
       await saveRecentSearch(searchText);
-      
-      // API 호출
       const response = await fetch(`${SERVER_ROOT}/search/${searchText}`);
       const data = await response.json();
       setSearchResults(data);
@@ -72,6 +65,43 @@ const SearchScreen = ({ navigation }) => {
       setIsSearching(false);
     }
   };
+
+  const handleRecentSearchClick = (searchTerm) => {
+    setSearchText(searchTerm);
+    // 검색어를 설정한 후 바로 검색 실행
+    handleSearch();
+  };
+
+  const renderMedicineItem = ({ item }) => (
+    <TouchableOpacity 
+      style={styles.medicineCard}
+      onPress={() => navigation.navigate('MedicineDetail', { 
+        item_id: item.item_id
+      })}
+    >
+      <Image 
+        source={{ uri: item.item_image }} 
+        style={styles.medicineImage}
+      />
+      <View style={styles.medicineInfo}>
+        <View style={styles.titleContainer}>
+          <View style={styles.typeBox}>
+            <Text style={styles.typeText}>{item.etc_otc_name}</Text>
+          </View>
+          <Text style={styles.medicineName} numberOfLines={1}>{item.item_name}</Text>
+        </View>
+        <View style={styles.companyContainer}>
+          {item.class_name_list.map((class_name) => (
+            class_name.split(',').map((item, index) => (
+              <View key={index} style={styles.companyBox}>
+                <Text style={styles.companyText}>{item.trim()}</Text>
+              </View>
+            ))
+          ))}
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -93,58 +123,37 @@ const SearchScreen = ({ navigation }) => {
         />
       </View>
 
-      <ScrollView>
-        {!searchResults && (
-          <>
-            <View style={styles.recentSearchHeader}>
-              <Text>최근 검색어</Text>
-            </View>
-            <ScrollView horizontal style={styles.recentSearches}>
-              {recentSearches.map((search, index) => (
-                <TouchableOpacity 
-                  key={index}
-                  style={styles.recentSearchItem}
-                  onPress={() => {
-                    setSearchText(search);
-                    handleSearch();
-                  }}
-                >
-                  <Text>{search}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </>
-        )}
+      <View style={styles.recentSearchContainer}>
+        <Text style={styles.recentSearchTitle}>최근 검색어</Text>
+        <ScrollView 
+          horizontal 
+          style={styles.recentSearchScroll}
+          showsHorizontalScrollIndicator={false}
+        >
+          {recentSearches.map((search, index) => (
+            <TouchableOpacity 
+              key={`recent-${search}-${index}`}
+              style={styles.recentSearchItem}
+              onPress={() => handleRecentSearchClick(search)}
+            >
+              <Text>{search}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
-        {searchResults && !isSearching && (
-          <>
-            <Text style={styles.resultCount}>
-              {searchText} 검색 결과 {searchResults.totalCount}건
-            </Text>
-            {searchResults.items.map((item, item_id) => (
-              <TouchableOpacity 
-                key={item_id}
-                style={styles.resultItem}
-                onPress={() => navigation.navigate('MedicineDetail', { medicine: item })}
-              >
-                <Image 
-                  source={{ uri: item.item_image }} 
-                  style={styles.medicineImage}
-                />
-                <View style={styles.medicineInfo}>
-                  <View style={styles.typeContainer}>
-                    <Text style={styles.typeText}>{item.etc_otc_name}</Text>
-                  </View>
-                  <Text style={styles.medicineName}>{item.item_name}</Text>
-                  <View style={styles.companyContainer}>
-                    <Text style={styles.companyText}>{item.entp_name}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </>
-        )}
-      </ScrollView>
+      {searchResults && (
+        <View style={styles.resultsContainer}>
+          <Text style={styles.resultCount}>
+            {searchText} 검색 결과 {searchResults.totalCount}건
+          </Text>
+          <FlatList
+            data={searchResults.items}
+            renderItem={renderMedicineItem}
+            keyExtractor={(item) => item.code}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -176,12 +185,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
   },
-  recentSearchHeader: {
+  recentSearchContainer: {
     padding: 16,
-    backgroundColor: '#f2f2f2',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  recentSearches: {
-    padding: 8,
+  recentSearchTitle: {
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  recentSearchScroll: {
+    flexGrow: 0,
   },
   recentSearchItem: {
     paddingHorizontal: 16,
@@ -189,14 +203,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ddd',
-    marginHorizontal: 4,
+    marginRight: 8,
+  },
+  resultsContainer: {
+    flex: 1,
   },
   resultCount: {
     padding: 16,
     fontSize: 16,
     fontWeight: '500',
   },
-  resultItem: {
+  medicineCard: {
     flexDirection: 'row',
     padding: 16,
     borderBottomWidth: 1,
@@ -210,13 +227,17 @@ const styles = StyleSheet.create({
   medicineInfo: {
     flex: 1,
   },
-  typeContainer: {
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  typeBox: {
     backgroundColor: '#007AFF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    alignSelf: 'flex-start',
-    marginBottom: 8,
+    marginRight: 8,
   },
   typeText: {
     color: '#fff',
@@ -224,14 +245,18 @@ const styles = StyleSheet.create({
   },
   medicineName: {
     fontSize: 16,
-    marginBottom: 8,
+    flex: 1,
   },
   companyContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  companyBox: {
     backgroundColor: '#f2f2f2',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    alignSelf: 'flex-start',
   },
   companyText: {
     color: '#666',

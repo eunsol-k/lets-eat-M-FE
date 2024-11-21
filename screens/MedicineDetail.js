@@ -2,24 +2,30 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useRoute } from '@react-navigation/native';
 import { SERVER_ROOT } from '../config/config'
 
-const MedicineDetail = ({ navigation, medicine_id }) => {
+const MedicineDetail = ({ navigation }) => {
+  const route = useRoute();
+  const medicineId = route.params?.item_id;
+
   const [basicInfo, setBasicInfo] = useState(null);
   const [cautionInfo, setCautionInfo] = useState(null);
   const [memoInfo, setMemoInfo] = useState(null);
   const [activeTab, setActiveTab] = useState('basic');
 
   useEffect(() => {
-    fetchAllData();
-  }, []);
+    if (medicineId) {
+      fetchAllData();
+    }
+  }, [medicineId]);
 
   const fetchAllData = async () => {
     try {
       // 병렬로 모든 API 호출
       const [basicResponse, cautionResponse, memoResponse] = await Promise.all([
-        fetch(`${SERVER_ROOT}/medicines/195900043`),
-        fetch(`${SERVER_ROOT}/medicines/195900043/warning`),
+        fetch(`${SERVER_ROOT}/medicines/${medicineId}`),
+        fetch(`${SERVER_ROOT}/medicines/${medicineId}/warning`),
         // fetch(`${SERVER_ROOT}/medicines/195900043/memo`)
       ]);
 
@@ -77,12 +83,8 @@ const MedicineDetail = ({ navigation, medicine_id }) => {
               <Text style={styles.value}>{cautionInfo?.bizrno}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.label}>투여경로명</Text>
-              <Text style={styles.value}>{cautionInfo?.atpnQesitm}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>단위</Text>
-              <Text style={styles.value}>{cautionInfo?.atpnQesitm}</Text>
+              <Text style={styles.label}>정</Text>
+              <Text style={styles.value}>{basicInfo?.form_code_name}</Text>
             </View>
           </View>
         );
@@ -107,7 +109,7 @@ const MedicineDetail = ({ navigation, medicine_id }) => {
             </View>
           </View>
         );
-      case 'momo':
+      // case 'momo':
         return (
           <View style={styles.infoContainer}>
             {memoInfo.map((warning, index) => (
@@ -149,11 +151,6 @@ const MedicineDetail = ({ navigation, medicine_id }) => {
           style={[styles.tab, activeTab === 'caution' && styles.activeTab]}
           onPress={() => setActiveTab('caution')}>
           <Text style={styles.tabText}>주의사항</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tab, activeTab === 'memo' && styles.activeTab]}
-          onPress={() => setActiveTab('memo')}>
-          <Text style={styles.tabText}>메모</Text>
         </TouchableOpacity>
       </View>
 
