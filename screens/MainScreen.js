@@ -29,9 +29,6 @@ const MainScreen = ({ navigation }) => {
     }
   };
 
-  const navigation = useNavigation();  // 네비게이션 훅 사용
-  
-
   // 카메라 화면으로 이동하는 함수
   const goToCamera = () => {
     navigation.navigate('Camera');  // 'Camera' 화면으로 이동
