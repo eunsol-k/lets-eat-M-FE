@@ -19,6 +19,7 @@ const MypageScreen = ({ navigation }) => {
   const [nickname, setNickname] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
   const [recentSearches, setRecentSearches] = useState([]);
+  const [like, setLike] = useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -30,7 +31,7 @@ const MypageScreen = ({ navigation }) => {
       }
 
       loadData()
-    }, [])
+    }, [like])
   )
 
   const loadUserData = async () => {
@@ -58,13 +59,52 @@ const MypageScreen = ({ navigation }) => {
       if (response.status === 200) {
         const data = await response.json();
         setRecentSearches(data.items);
-
-        console.log('fetched research items: ', data.items)
       }
     } catch (error) {
       console.error('Error loading recent searches:', error);
     }
   };
+
+    const getLike = async (medicineId) => {
+    const storedAccessToken = await AsyncStorage.getItem('access_token');
+    
+    try {
+      const response = await fetch(`${SERVER_ROOT}/likes/${medicineId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${storedAccessToken}`
+        }
+      });
+
+      if (response.status === 200) {
+        console.log("like status change successed.")
+        setLike(!like);
+      }
+    } catch (error) {
+      console.error('getLike error:', error);
+    }
+  }
+
+    const likeProcess = async (medicineId) => {
+    const storedAccessToken = await AsyncStorage.getItem('access_token');
+    
+    try {
+      const response = await fetch(`${SERVER_ROOT}/likes/${medicineId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${storedAccessToken}`
+        }
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        getLike(medicineId)
+        console.log(data.msg);
+      }
+    } catch (error) {
+      console.error('likeProcess error:', error);
+    }
+  }
 
   const renderItemCard = (item) => (
     <TouchableOpacity 
@@ -86,7 +126,8 @@ const MypageScreen = ({ navigation }) => {
         <Icon 
           name={item.like ? "heart" : "heart-outline"} 
           size={24} 
-          color={item.like ? "red" : "white"} 
+          color="white"
+          onPress={() => likeProcess(item.item_id)}
         />
       </TouchableOpacity>
     </TouchableOpacity>

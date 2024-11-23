@@ -14,13 +14,15 @@ const MedicineDetail = ({ navigation }) => {
   const [cautionInfo, setCautionInfo] = useState(null);
   const [memoInfo, setMemoInfo] = useState(null);
   const [activeTab, setActiveTab] = useState('basic');
+  const [like, setLike] = useState(false)
 
   useEffect(() => {
     if (medicineId) {
       fetchAllData();
       addViewHistory();
+      getLike();
     }
-  }, [medicineId]);
+  }, [medicineId, like]);
 
   const fetchAllData = async () => {
     try {
@@ -58,7 +60,48 @@ const MedicineDetail = ({ navigation }) => {
         console.log('History add successed.');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('addViewHistory error:', error);
+    }
+  }
+
+  const getLike = async () => {
+    const storedAccessToken = await AsyncStorage.getItem('access_token');
+    
+    try {
+      const response = await fetch(`${SERVER_ROOT}/likes/${medicineId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${storedAccessToken}`
+        }
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        setLike(data.is_liked);
+      }
+    } catch (error) {
+      console.error('getLike error:', error);
+    }
+  }
+
+  const likeProcess = async () => {
+    const storedAccessToken = await AsyncStorage.getItem('access_token');
+    
+    try {
+      const response = await fetch(`${SERVER_ROOT}/likes/${medicineId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${storedAccessToken}`
+        }
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        getLike()
+        console.log(data.msg);
+      }
+    } catch (error) {
+      console.error('likeProcess error:', error);
     }
   }
 
@@ -151,7 +194,12 @@ const MedicineDetail = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{basicInfo?.item_name}</Text>
         <TouchableOpacity>
-          <Icon name="heart-outline" size={24} color="black" />
+          <Icon 
+            name={like ? "heart" : "heart-outline"} 
+            size={24} 
+            color="black"
+            onPress={() => likeProcess()}
+          />
         </TouchableOpacity>
       </View>
 
