@@ -29,6 +29,14 @@ const MainScreen = ({ navigation }) => {
     }
   };
 
+  const navigation = useNavigation();  // 네비게이션 훅 사용
+  
+
+  // 카메라 화면으로 이동하는 함수
+  const goToCamera = () => {
+    navigation.navigate('Camera');  // 'Camera' 화면으로 이동
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -62,7 +70,7 @@ const MainScreen = ({ navigation }) => {
       {/* Section for taking a photo */}
       <View style={styles.section}>
       <Text style={styles.sectionText}>사진을 찍어 알아봐요!</Text>
-        <TouchableOpacity style={styles.searchButton}>
+      <TouchableOpacity style={styles.searchButton} onPress={() => navigation.navigate('Camera')}>
           <Ionicons name="camera-outline" size={24} color="black" />
           <Text style={styles.buttonText}>알약 촬영하기</Text>
         </TouchableOpacity>

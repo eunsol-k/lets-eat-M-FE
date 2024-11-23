@@ -12,6 +12,7 @@ import MainScreen from './screens/MainScreen';
 import SearchScreen from './screens/SearchScreen';
 import MedicineDetail from './screens/MedicineDetail';
 import SettingsScreen from './screens/SettingsScreen';
+import CameraScreen from './screens/CameraScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import SetNicknameScreen from './screens/SetNicknameScreen'
@@ -52,6 +53,11 @@ const MainStack = () => {
         name="MedicineDetail" 
         component={MedicineDetail}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="Camera" 
+        component={CameraScreen} 
+        options={{ headerShown: true, title: 'Camera' }} // CameraScreen에 헤더 표시
       />
     </Stack.Navigator>
   );
