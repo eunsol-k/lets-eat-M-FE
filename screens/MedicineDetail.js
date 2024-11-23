@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SERVER_ROOT } from '../config/config'
 
 const MedicineDetail = ({ navigation }) => {
@@ -17,6 +18,7 @@ const MedicineDetail = ({ navigation }) => {
   useEffect(() => {
     if (medicineId) {
       fetchAllData();
+      addViewHistory();
     }
   }, [medicineId]);
 
@@ -40,6 +42,25 @@ const MedicineDetail = ({ navigation }) => {
       console.error('Data fetching error:', error);
     }
   };
+
+  const addViewHistory = async () => {
+    const storedAccessToken = await AsyncStorage.getItem('access_token');
+    
+    try {
+      const response = await fetch(`${SERVER_ROOT}/history/${medicineId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${storedAccessToken}`
+        }
+      });
+
+      if (response.status === 201) {
+        console.log('History add successed.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  }
 
   const renderContent = () => {
     switch(activeTab) {
