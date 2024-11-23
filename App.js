@@ -16,9 +16,10 @@ import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import SetNicknameScreen from './screens/SetNicknameScreen'
 import MypageScreen from './screens/MypageScreen';
+import LikeListScreen from './screens/LikeListScreen';
 import { Ionicons } from '@expo/vector-icons';
 
-// Stack Navigator for Search flow
+// Stack Navigator for Home flow
 const MainStack = () => {
   return (
     <Stack.Navigator>
@@ -56,6 +57,24 @@ const MainStack = () => {
   );
 };
 
+// Stack Navigator for Mypage flow
+const MypageStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="MypageScreen" 
+        component={MypageScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="LikeListScreen" 
+        component={LikeListScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
 function MyTab() {
   const [isLoginned, setIsLoginned] = useState(false);
 
@@ -78,7 +97,7 @@ function MyTab() {
       tabBarLabelPosition: 'beside-icon', // 라벨 위치 변경
       tabBarShowLabel: false
     }}>
-      <Tab.Screen name="Mypage" component={MypageScreen} options={{
+      <Tab.Screen name="Mypage" component={MypageStack} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="person" size={size} color={color} />

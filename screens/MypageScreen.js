@@ -173,7 +173,8 @@ const MypageScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem}>
             <Icon name="heart-outline" size={24} />
-            <Text style={styles.menuText}>관심 목록</Text>
+            <Text style={styles.menuText}
+              onPress={() => navigation.navigate('LikeListScreen')}>관심 목록</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem}>
             <Icon name="star-outline" size={24} />
