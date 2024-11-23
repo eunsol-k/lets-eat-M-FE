@@ -26,14 +26,16 @@ const LoginScreen = ({ navigation }) => {
         }),
       });
 
-      const data = await response.json();
-      
-      if (data.access_token && data.refresh_token) {
-        await AsyncStorage.setItem('access_token', data.access_token);
-        await AsyncStorage.setItem('refresh_token', data.refresh_token);
-        await AsyncStorage.setItem('nickname', data.username);
+      if (response.status === 201) {
+        const data = await response.json();
+        
+        if (data.access_token && data.refresh_token) {
+          await AsyncStorage.setItem('access_token', data.access_token);
+          await AsyncStorage.setItem('refresh_token', data.refresh_token);
+          await AsyncStorage.setItem('nickname', data.username);
 
-        navigation.navigate('MainScreen');
+          navigation.navigate('MainScreen');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -82,6 +84,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
+    marginBlockStart: 30,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,

@@ -25,7 +25,7 @@ const SetNicknameScreen = ({ navigation }) => {
         }),
       });
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         navigation.navigate('LoginScreen', { username: nickname });
       }
     } catch (error) {
@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
+    marginBlockStart: 30,
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
