@@ -38,11 +38,6 @@ const MainScreen = ({ navigation }) => {
     }
   };
 
-  // 카메라 화면으로 이동하는 함수
-  const goToCamera = () => {
-    navigation.navigate('Camera');  // 'Camera' 화면으로 이동
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -94,7 +89,9 @@ const MainScreen = ({ navigation }) => {
               <Ionicons name="search-outline" size={24} color="black" />
               <Text style={styles.buttonText}>약 검색</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.searchButton}>
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('MapScreen')}
+              style={styles.searchButton}>
               <Ionicons name="business-outline" size={24} color="black" />
               <Text style={styles.buttonText}>약국 검색</Text>
             </TouchableOpacity>

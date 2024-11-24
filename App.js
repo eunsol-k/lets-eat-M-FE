@@ -20,6 +20,7 @@ import SignUpScreen from './screens/SignUpScreen';
 import SetNicknameScreen from './screens/SetNicknameScreen'
 import MypageScreen from './screens/MypageScreen';
 import LikeListScreen from './screens/LikeListScreen';
+import MapScreen from './screens/MapScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 // Stack Navigator for Home flow
@@ -60,6 +61,11 @@ const MainStack = () => {
         name="Camera" 
         component={CameraScreen} 
         options={{ headerShown: true, title: 'Camera' }} // CameraScreen에 헤더 표시
+      />
+      <Stack.Screen 
+        name="MapScreen" 
+        component={MapScreen} 
+        options={{ headerShown: true, title: 'Map' }} // MapScreen에 헤더 표시
       />
     </Stack.Navigator>
   );
