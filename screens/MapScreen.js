@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
@@ -58,13 +58,23 @@ const MapScreen = () => {
         longitudeDelta: 0.01,
       }}
     >
+      {/* 현재 위치 마커 */}
       <Marker
         coordinate={{
           latitude: location.latitude,
           longitude: location.longitude,
         }}
         title="현재 위치"
-      />
+        pinColor="blue" // 현재 위치 마커 색상 설정
+      >
+        {/* 또는 커스텀 이미지로 현재 위치 표시 */}
+        {/* <Image
+          source={require('./assets/current-location-icon.png')}
+          style={{ width: 40, height: 40 }}
+        /> */}
+      </Marker>
+
+      {/* 약국 마커들 */}
       {pharmacies.map((pharmacy, index) => (
         <Marker
           key={index}
