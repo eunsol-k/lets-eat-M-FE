@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, Button, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 // 화면 높이를 가져옵니다.
 const screenHeight = Dimensions.get('window').height;
@@ -14,9 +15,17 @@ const MainScreen = ({ navigation }) => {
   const [nickname, setNickname] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
 
-  useEffect(() => {
-    checkLoginStatus();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadData = async () => {
+        await Promise.all([
+          checkLoginStatus()
+        ])
+      }
+
+      loadData()
+    }, [nickname])
+  )
 
   const checkLoginStatus = async () => {
     try {
@@ -77,27 +86,20 @@ const MainScreen = ({ navigation }) => {
 
       {/* Section for search options */}
       <View style={styles.section}>
-      <Text style={styles.sectionText}>검색을 통해 알아봐요!</Text>
-        <View style={styles.searchOptions}>
-        <View style={styles.rowContainer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('SearchScreen')}
-          style={styles.searchButton}>
-          <Ionicons name="search-outline" size={24} color="black" />
-          <Text style={styles.buttonText}>약 검색</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.searchButton}>
-          <Ionicons name="business-outline" size={24} color="black" />
-          <Text style={styles.buttonText}>약국 검색</Text>
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity style={styles.searchButton}>
-      <FontAwesome name="medkit" size={24} color="black" />
-        <Text style={styles.buttonText}>약 모양으로 검색</Text>
-      </TouchableOpacity>
+        <Text style={styles.sectionText}>검색을 통해 알아봐요!</Text>
+          <View style={styles.searchOptions}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('SearchScreen')}
+              style={styles.searchButton}>
+              <Ionicons name="search-outline" size={24} color="black" />
+              <Text style={styles.buttonText}>약 검색</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.searchButton}>
+              <Ionicons name="business-outline" size={24} color="black" />
+              <Text style={styles.buttonText}>약국 검색</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
     </View>
   );
 }
@@ -189,6 +191,7 @@ const styles = StyleSheet.create({
 
     // Android에서 그림자 효과
     elevation: 5,                  // 그림자 크기
+    marginBlockEnd: 20
   },
   buttonText: {
     marginLeft: 10,         // 아이콘과 텍스트 간의 간격

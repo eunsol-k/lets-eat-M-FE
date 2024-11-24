@@ -9,6 +9,7 @@ import { SERVER_ROOT } from '../config/config'
 const LoginScreen = ({ navigation }) => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+  const [informMismatch, setInformMismatch] = useState(false)
 
   const route = useRoute();
   const nickname = route.params?.username;
@@ -36,6 +37,9 @@ const LoginScreen = ({ navigation }) => {
 
           navigation.navigate('MainScreen');
         }
+      } else {
+        setInformMismatch(true);
+        return;
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -66,6 +70,9 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setPassword}
           secureTextEntry
         />
+        {informMismatch && (
+          <Text style={styles.errorText}>아이디 또는 비밀번호가 틀렸습니다.</Text>
+        )}
 
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>로그인</Text>

@@ -4,6 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -82,20 +84,28 @@ const MypageStack = () => {
 };
 
 function MyTab() {
+  const navigation = useNavigation();
   const [isLoginned, setIsLoginned] = useState(false);
 
   useEffect(() => {
-    checkLoginStatus();
-  }, []);
+    const unsubscribe = navigation.addListener('state', async () => {
+      const token = await AsyncStorage.getItem('access_token');
+      setIsLoginned(!!token);
+    });
 
-  const checkLoginStatus = async () => {
-    try {
-      const nickname = await AsyncStorage.getItem('nickname');
-      setIsLoginned(!!nickname);
-    } catch (error) {
-      console.error('Error checking login status:', error);
-    }
-  };
+    return unsubscribe;
+  }, [navigation]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkLoginStatus = async () => {
+        const token = await AsyncStorage.getItem('access_token');
+        setIsLoginned(!!token);
+      };
+
+      checkLoginStatus();
+    }, [])
+  );
 
   return (
     <Tab.Navigator initialRouteName="Home"
@@ -103,22 +113,35 @@ function MyTab() {
       tabBarLabelPosition: 'beside-icon', // 라벨 위치 변경
       tabBarShowLabel: false
     }}>
-      <Tab.Screen name="Mypage" component={MypageStack} options={{
-        headerShown: false,
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="person" size={size} color={color} />
-        ),
-        tabBarButton: (props) => (
-          <TouchableOpacity 
-            {...props} 
-            disabled={!isLoginned}
-            style={[
-              props.style, 
-              !isLoginned && { opacity: 0.5 }
-            ]}
-          />
-        )
-      }} />
+      <Tab.Screen 
+        name="Mypage" 
+        component={MypageStack} 
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons 
+              name="person" 
+              size={size} 
+              color={isLoginned ? color : '#999'} 
+            />
+          ),
+          tabBarButton: (props) => (
+            <TouchableOpacity 
+              {...props} 
+              disabled={!isLoginned}
+              style={[
+                props.style, 
+                !isLoginned && { opacity: 0.5 }
+              ]}
+              onPress={() => {
+                if (isLoginned) {
+                  props.onPress();
+                }
+              }}
+            />
+          )
+        }} 
+      />
       <Tab.Screen name="Home" component={MainStack} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (

@@ -132,7 +132,7 @@ const SearchScreen = ({ navigation }) => {
         >
           {recentSearches.map((search, index) => (
             <TouchableOpacity 
-              key={`recent-${search}-${index}`}
+              key={index}
               style={styles.recentSearchItem}
               onPress={() => handleRecentSearchClick(search)}
             >
