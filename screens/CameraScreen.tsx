@@ -5,11 +5,12 @@ import { Button, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-n
 export default function CameraScreen() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
-  const [photo, setPhoto] = useState(null);  // 촬영된 사진을 저장할 상태
-  const [predictedPhoto, setPredictedPhoto] = useState(null);  // 예측된 이미지를 저장할 상태
-  const [photoData, setPhotoData] = useState(null);
+  const [photo, setPhoto] = useState<string | null>(null);  // 촬영된 사진을 저장할 상태
+  const [predictedPhoto, setPredictedPhoto] = useState<string | null>(null);  // 예측된 이미지를 저장할 상태
+  const [photoData, setPhotoData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const cameraRef = useRef(null);  // 카메라 참조
+  const cameraRef = useRef<any>(null);  // 카메라 참조
 
   // 권한 상태가 로딩 중이면 화면에 아무것도 표시하지 않음
   if (permission === null) {
@@ -37,17 +38,80 @@ export default function CameraScreen() {
       const Data = await cameraRef.current.takePictureAsync();
       setPhoto(Data.uri);  // 촬영된 사진의 URI를 상태에 저장
       setPhotoData(Data);
-
     }
   }
 
-  async function Detect(){
-    
-      // 서버로 이미지 전송 후 예측된 이미지 받기
-      const predictedUri = await sendToServer(photoData.uri);
-      setPredictedPhoto(predictedUri);  // 예측된 이미지의 URI 상태에 저장
-    
+  async function Detect() {
+    if (photoData) {
+      // 서버로 이미지 전송 후 예측된 Blob 데이터 받기
+      const blob = await sendToServer(photoData.uri);
+      const base64Image = await blobToBase64(blob);
+      setPredictedPhoto(base64Image);
+    }
   }
+
+  // Blob 데이터를 Base64로 변환하는 함수
+  function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+    });
+  }
+
+// 서버로 이미지 전송 후 예측된 이미지 받기
+async function sendToServer(uri: string): Promise<Blob> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      setLoading(true);
+      console.log('여기서 uri란: ', uri);
+
+      // 촬영된 이미지 URI를 Blob으로 변환
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      // Blob 데이터를 Base64로 변환
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+
+      reader.onloadend = async function () {
+        const base64data = reader.result as string;
+
+        // 서버로 요청 보내기
+        const serverResponse = await fetch('http://192.168.0.20:5001/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({ image: base64data }),
+        });
+
+        console.log('Server response:', serverResponse);
+
+        if (!serverResponse.ok) {
+          throw new Error(`HTTP error! status: ${serverResponse.status}`);
+        }
+
+        const resultBlob = await serverResponse.blob();
+        console.log('resultBlob란?: ', resultBlob);
+
+        setLoading(false);
+        resolve(resultBlob);
+      };
+
+      reader.onerror = reject;
+    } catch (error) {
+      console.error('Error sending image to server:', error);
+      setLoading(false);
+      reject(error);
+    }
+  });
+}
+
 
   // 다시 촬영하기 함수
   function retakePicture() {
@@ -55,96 +119,54 @@ export default function CameraScreen() {
     setPredictedPhoto(null);  // 예측된 이미지 초기화
   }
 
-  
-
-
-  async function sendToServer(uri: string) {
-    try {
-      console.log('여기서 uri란: ', uri);
-  
-      // 촬영된 이미지 URI를 Blob으로 변환
-      const response = await fetch(uri);
-      const blob = await response.blob();
-  
-      // Blob 데이터를 Base64로 변환
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async function() {
-        const base64data = reader.result as string;
-  
-        // 서버로 요청 보내기
-        const serverResponse = await fetch('http://192.168.0.20:5001/predict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: JSON.stringify({ image: base64data })
-        });
-  
-        console.log('Server response:', serverResponse);
-        if (!serverResponse.ok) {
-          throw new Error(`HTTP error! status: ${serverResponse.status}`);
-        }
-  
-        const resultBlob = await serverResponse.blob();
-        console.log('resultBlob란?: ', resultBlob)
-        const resultUri = URL.createObjectURL(resultBlob);
-
-        console.log('resultUri란?: ', resultUri)
-        return resultUri;
-      };
-    } catch (error) {
-      console.error('Error sending image to server:', error);
-      throw error;
-    }
-  }
-  
-  
-  
-return (
-  <View style={styles.container}>
-    {predictedPhoto ? (
-      // 예측된 이미지가 있으면 이를 화면에 표시
-      <View style={styles.photoContainer}>
-        <Image source={{ uri: predictedPhoto }} style={styles.photo} />
-        <TouchableOpacity style={styles.retakeButton} onPress={retakePicture}>
-          <Text style={styles.text}>Retake Picture</Text>
-        </TouchableOpacity>
-      </View>
-    ) : photo ? (
-      // 사진이 촬영되었으면 카메라를 숨기고 사진을 크게 표시
-      <View style={styles.photoContainer}>
-        <Image source={{ uri: photo }} style={styles.photo} />
-        <View style={styles.buttonRow}>
+  return (
+    <View style={styles.container}>
+      {loading ? (
+        <View style={styles.loadingOverlay}>
+          <Text style={styles.loadingText}>Detecting pills...</Text>
+        </View>
+      ) : predictedPhoto ? (
+        // 예측된 이미지가 있으면 이를 화면에 표시
+        <View style={styles.photoContainer}>
+          <Image source={{ uri: predictedPhoto }} style={styles.photo} />
           <TouchableOpacity style={styles.retakeButton} onPress={retakePicture}>
             <Text style={styles.text}>Retake Picture</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.detectButton} onPress={() => Detect()}>
-            <Text style={styles.text}>Detect</Text>
-          </TouchableOpacity>
         </View>
-      </View>
-    ) : (
-      // 사진이 촬영되지 않으면 카메라 화면을 렌더링
-      <CameraView
-        style={styles.camera}
-        facing={facing}
-        ref={cameraRef}  // 카메라 참조 연결
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={takePicture}>
-            <Text style={styles.text}>Take Picture</Text>
-          </TouchableOpacity>
+      ) : photo ? (
+        // 사진이 촬영되었으면 카메라를 숨기고 사진을 크게 표시
+        <View style={styles.photoContainer}>
+          <Image source={{ uri: photo }} style={styles.photo} />
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.retakeButton} onPress={retakePicture}>
+              <Text style={styles.text}>Retake Picture</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.detectButton} onPress={Detect}>
+              <Text style={styles.text}>Detect</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </CameraView>
-    )}
-  </View>
-);
+      ) : (
+        // 사진이 촬영되지 않으면 카메라 화면을 렌더링
+        <CameraView
+          style={styles.camera}
+          facing={facing}
+          ref={cameraRef}  // 카메라 참조 연결
+        >
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+              <Text style={styles.text}>Flip Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={takePicture}>
+              <Text style={styles.text}>Take Picture</Text>
+            </TouchableOpacity>
+          </View>
+        </CameraView>
+      )}
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -204,5 +226,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 255, 0, 0.7)',
     padding: 10,
     borderRadius: 5,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',  // 투명도 70%
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  loadingText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });

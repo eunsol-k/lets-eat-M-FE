@@ -28,7 +28,7 @@ def predict():
     # 이미지를 OpenCV 형식으로 변환
     image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
-    # 비율을 유지한 채로 가로가 800px이 되도록 이미지 리사이즈
+    # 비율을 유지한 채로 가로가 640px이 되도록 이미지 리사이즈
     h, w = image_cv.shape[:2]
     new_w = 640
     new_h = int((new_w / w) * h)
@@ -43,18 +43,20 @@ def predict():
     # 결과 이미지를 numpy 배열로 변환
     result_image = results[0].plot()  # 결과 이미지가 numpy 배열로 반환됩니다.
 
-    # OpenCV를 사용하여 이미지 윈도우 창으로 띄우기
-    cv2.imshow('YOLOv8 Detection', result_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # OpenCV로 BGR에서 RGB로 변환
+    result_image_rgb = cv2.cvtColor(result_image, cv2.COLOR_BGR2RGB)
+
+    # numpy 배열을 PIL 이미지로 변환
+    pil_image = Image.fromarray(result_image_rgb)
 
     # 이미지를 byte로 변환하여 반환
-    pil_image = Image.fromarray(cv2.cvtColor(result_image, cv2.COLOR_BGR2RGB))  # numpy 배열을 PIL 이미지로 변환
     img_byte_arr = io.BytesIO()
-    pil_image.save(img_byte_arr, format='JPEG')
+    pil_image.save(img_byte_arr, format='JPEG', quality=85)  # 'JPEG' 형식으로 저장
     img_byte_arr.seek(0)
 
-    return send_file(img_byte_arr, mimetype='image/jpeg')  # 예측된 이미지를 클라이언트로 전송
+    print('모델 작업 완료')
+
+    return send_file(img_byte_arr, mimetype='image/jpeg')  # 올바른 MIME 타입 설정
 
 @app.route('/test', methods=['POST'])
 def test():
