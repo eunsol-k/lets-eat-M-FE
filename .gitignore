@@ -3,7 +3,7 @@
 # 모델
 model/__pycache__/
 model/best.pt
-
+model/ResNet.pt
 
 # dependencies
 node_modules/

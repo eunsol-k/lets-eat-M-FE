@@ -153,6 +153,11 @@ async function sendToServer(uri: string): Promise<Blob> {
           facing={facing}
           ref={cameraRef}  // 카메라 참조 연결
         >
+        {/* 중앙 정사각형 */}
+          <View style={styles.overlay}>
+            <View style={styles.square} />
+            <Text style={styles.centerText}>중앙으로 물체가 들어오게 해주세요</Text>
+          </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
               <Text style={styles.text}>Flip Camera</Text>
@@ -243,4 +248,29 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  
+  square: {
+    width: 250, // 정사각형의 너비와 높이
+    height: 250,
+    borderColor: 'white',
+    borderWidth: 2,
+    borderStyle: 'solid',
+  },
+  
+  centerText: {
+    marginTop: 10,
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  },  
 });
