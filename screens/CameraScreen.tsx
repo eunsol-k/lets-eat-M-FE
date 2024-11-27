@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { SERVER_ROOT } from '../config/config'
 
 export default function CameraScreen() {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -81,7 +82,7 @@ async function sendToServer(uri: string): Promise<Blob> {
         const base64data = reader.result as string;
 
         // 서버로 요청 보내기
-        const serverResponse = await fetch('http://192.168.0.20:5001/predict', {
+        const serverResponse = await fetch(`${SERVER_ROOT}/predict`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

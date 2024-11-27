@@ -48,7 +48,7 @@ const SettingsScreen = ({ navigation }) => {
       await AsyncStorage.removeItem('access_token');
       await AsyncStorage.removeItem('refresh_token');
       await AsyncStorage.removeItem('nickname');
-      navigation.navigate('MainScreen');
+      navigation.goBack();
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -82,7 +82,7 @@ const SettingsScreen = ({ navigation }) => {
                 await AsyncStorage.removeItem('access_token');
                 await AsyncStorage.removeItem('refresh_token');
                 await AsyncStorage.removeItem('nickname');
-                navigation.navigate('MainScreen');
+                navigation.goBack();
               }
             } catch (error) {
               console.error('Withdrawal error:', error);
