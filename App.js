@@ -85,6 +85,29 @@ const MypageStack = () => {
         component={LikeListScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen 
+        name="MedicineDetail" 
+        component={MedicineDetail}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+// Stack Navigator for Setting flow
+const SettingStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen 
+        name="SettingsScreen" 
+        component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="MypageScreen" 
+        component={MypageScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -154,7 +177,7 @@ function MyTab() {
           <Ionicons name="home" size={size} color={color} />
         ),
       }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{
+      <Tab.Screen name="Settings" component={SettingStack} options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="settings" size={size} color={color} />
