@@ -104,8 +104,8 @@ const SettingStack = () => {
         options={{ headerShown: false }}
       />
       <Stack.Screen 
-        name="MypageScreen" 
-        component={MypageScreen}
+        name="MainScreen" 
+        component={MainScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
