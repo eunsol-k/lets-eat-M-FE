@@ -82,7 +82,7 @@ async function sendToServer(uri: string): Promise<Blob> {
         const base64data = reader.result as string;
 
         // 서버로 요청 보내기
-        const serverResponse = await fetch(`${SERVER_ROOT}/predict`, {
+        const serverResponse = await fetch(`${SERVER_ROOT}/model`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
