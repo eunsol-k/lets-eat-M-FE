@@ -12,17 +12,18 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.letseat.m",
       "supportsTablet": true
     },
     "android": {
       "versionCode": 1,
+      "package": "com.letseat.m",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": ["android.permission.INTERNET"],
-      "usesCleartextTraffic": true,
-      "package": "com.eunsol0808.letseatm"
+      "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
