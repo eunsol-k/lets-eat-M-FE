@@ -1,0 +1,1 @@
+export const SERVER_ROOT = "http://34.234.90.189:5000";
