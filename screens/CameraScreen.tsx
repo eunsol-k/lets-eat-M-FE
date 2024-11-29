@@ -124,7 +124,10 @@ async function sendToServer(uri: string): Promise<Blob> {
     <View style={styles.container}>
       {loading ? (
         <View style={styles.loadingOverlay}>
-          <Text style={styles.loadingText}>Detecting pills...</Text>
+          <Text style={styles.loadingText}>{
+            `알약 탐지 중...
+            모델 로드로 인해 첫 탐지는 최대 5분 정도 걸릴 수 있습니다.`
+          }</Text>
         </View>
       ) : predictedPhoto ? (
         // 예측된 이미지가 있으면 이를 화면에 표시
