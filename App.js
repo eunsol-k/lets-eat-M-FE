@@ -103,11 +103,6 @@ const SettingStack = () => {
         component={SettingsScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="MainScreen" 
-        component={MainScreen}
-        options={{ headerShown: false }}
-      />
     </Stack.Navigator>
   );
 };
